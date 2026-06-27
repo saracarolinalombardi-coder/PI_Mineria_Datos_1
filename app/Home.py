@@ -5,9 +5,9 @@ st.title("Análisis de Usuarios de Plataforma de Streaming")
 st.markdown("---")
 
 st.markdown("### Información del proyecto")
-st.markdown("**Integrantes:** Sara y [compañero]")
-st.markdown("**Comisión:** [tu comisión]")
-st.markdown("**Fecha:** Junio 2026")
+st.markdown("**Integrantes:** Sara")
+st.markdown("**Comisión:**Turno tarde Capital")
+st.markdown("**Fecha:**26 de junio 2026")
 
 st.markdown("---")
 
@@ -23,4 +23,4 @@ inspección, limpieza, análisis exploratorio y reducción de dimensionalidad.
 st.markdown("---")
 
 st.markdown("### Repositorio")
-st.markdown("[Ver repositorio en GitHub](#)")
+st.markdown("[Ver repositorio en GitHub](https://github.com/saracarolinalombardi-coder/PI_Mineria_Datos_1)")

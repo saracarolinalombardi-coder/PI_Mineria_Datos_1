@@ -45,4 +45,4 @@ st.write("""
 
 st.markdown("---")
 st.markdown("### Enlaces")
-st.markdown("[Ver repositorio en GitHub](#)")
+st.markdown("[Ver repositorio en GitHub](https://github.com/saracarolinalombardi-coder/PI_Mineria_Datos_1)")
