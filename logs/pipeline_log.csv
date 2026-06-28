@@ -1,10 +1,10 @@
 Paso,Descripción,Filas,Nulos,Retención (%)
 1,Dataset original,8160,753,100.0%
 2,Eliminación de filas duplicadas,8034,753,98.5%
-3,"Normalización de subscription_plan, country y favorite_genre",8034,240,98.5%
-4,Eliminación de registros con género nulo,6714,0,82.3%
-5,Eliminación de edades inválidas (negativas o mayores a 100),6655,0,81.6%
-6,Eliminación de valores negativos y outlier extremo en watch time,6592,0,80.8%
-7,Imputación de nulos en watch time con la mediana (760.8 min),6592,0,80.8%
-8,Eliminación de fechas inválidas o nulas en last_login_date,5957,0,73.0%
-9,Eliminación de tickets negativos y outliers mayores a 10,5886,0,72.1%
+3,Normalización de subscription_plan,8034,0,98.5%
+4,Normalización de country,8034,0,98.5%
+5,Normalización e imputación de favorite_genre con moda,8034,0,98.5%
+6,Eliminación de edades imposibles,7960,0,97.5%
+7,Winsorización e imputación de monthly_watch_time_mins,7911,0,96.9%
+8,Conversión e imputación de last_login_date con mediana,7911,0,96.9%
+9,Eliminación de tickets negativos y winsorización de outliers,7884,0,96.6%
