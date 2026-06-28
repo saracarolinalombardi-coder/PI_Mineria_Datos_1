@@ -38,7 +38,7 @@ pca.fit(X_scaled)
 varianza_explicada = pca.explained_variance_ratio_
 varianza_acumulada = varianza_explicada.cumsum()
 
-# --- VISUALIZACIÓN 1 ---
+# --- VISUALIZACIÓN 1 -----
 st.markdown("### Varianza explicada por componente")
 
 fig1, ax1 = plt.subplots(figsize=(8, 5))
