@@ -1,102 +1,95 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
-
-# Cargamos el dataset limpio
+import plotly.express as px
 import os
+
+# ---------- CARGA DE DATOS ----------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-df = pd.read_csv(os.path.join(BASE_DIR, 'data', 'processed', 'streaming_users_clean.csv'))
-st.title("Escalamiento y PCA")
 
-st.markdown("### Variables utilizadas")
-st.write("""
-Se seleccionaron las tres variables numéricas continuas del dataset:
-age, monthly_watch_time_mins y customer_support_tickets.
-Se excluyeron las variables categóricas porque PCA requiere variables numéricas.
+@st.cache_data
+def cargar_datos():
+    return pd.read_csv(os.path.join(BASE_DIR, 'data', 'processed', 'streaming_users_clean.csv'))
+
+df = cargar_datos()
+orden_plan = ['Básico', 'Estándar', 'Premium']
+
+st.title("Análisis Exploratorio de Datos")
+st.caption("Cada gráfico responde una pregunta y lleva su interpretación.")
+
+# ---------- VISUALIZACIÓN 1 ----------
+st.subheader("1. Distribución de edades")
+fig1 = px.histogram(df, x='age', nbins=20,
+                    color_discrete_sequence=['steelblue'],
+                    labels={'age': 'Edad'})
+fig1.update_traces(marker_line_color='white', marker_line_width=1)
+fig1.update_layout(xaxis_title='Edad', yaxis_title='Cantidad de usuarios',
+                   title='Distribución de edades de los usuarios')
+st.plotly_chart(fig1, use_container_width=True)
+st.markdown("""
+**Interpretación:** La distribución de edades se concentra entre los 20 y 50 años, con mayor
+frecuencia en la franja de 25 a 40 años. Esto indica que la plataforma
+tiene mayor adopción entre adultos jóvenes y de mediana edad.
 """)
 
-st.markdown("### Escalamiento aplicado")
-st.write("""
-Se aplicó estandarización Z-score (StandardScaler) antes del PCA.
-Sin escalamiento, la variable con mayor varianza dominaría los componentes
-sin ninguna razón válida. Tras estandarizar, todas las variables
-contribuyen de forma equitativa.
+# ---------- VISUALIZACIÓN 2 ----------
+st.subheader("2. Tiempo mensual de visualización")
+fig2 = px.histogram(df, x='monthly_watch_time_mins', nbins=30,
+                    color_discrete_sequence=['coral'],
+                    labels={'monthly_watch_time_mins': 'Minutos por mes'})
+fig2.update_traces(marker_line_color='white', marker_line_width=1)
+fig2.update_layout(xaxis_title='Minutos por mes', yaxis_title='Cantidad de usuarios',
+                   title='Distribución del tiempo mensual de visualización')
+st.plotly_chart(fig2, use_container_width=True)
+st.markdown("""
+**Interpretación:** El tiempo de visualización se distribuye de forma aproximadamente simétrica,
+con la mayoría de los usuarios entre 400 y 1200 minutos mensuales.
+Este resultado es el punto de partida para analizar si el plan de suscripción
+influye en el tiempo de consumo.
 """)
 
-# Aplicamos escalamiento y PCA
-variables = ['age', 'monthly_watch_time_mins', 'customer_support_tickets']
-X = df[variables]
-
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-pca = PCA(n_components=3)
-pca.fit(X_scaled)
-
-varianza_explicada = pca.explained_variance_ratio_
-varianza_acumulada = varianza_explicada.cumsum()
-
-# --- VISUALIZACIÓN 1 -----
-st.markdown("### Varianza explicada por componente")
-
-fig1, ax1 = plt.subplots(figsize=(8, 5))
-ax1.bar(range(1, 4), varianza_explicada * 100, color='steelblue',
-        edgecolor='white', label='Varianza por componente')
-ax1.plot(range(1, 4), varianza_acumulada * 100, 'o-',
-         color='coral', linewidth=2, label='Varianza acumulada')
-ax1.axhline(y=80, color='gray', linestyle='--', alpha=0.7, label='Umbral 80%')
-ax1.set_xlabel('Componente principal')
-ax1.set_ylabel('Varianza explicada (%)')
-ax1.set_title('Varianza explicada por componente principal')
-ax1.legend()
-st.pyplot(fig1)
-
-st.write("""
-PC1 explica el 33.7%, PC2 el 33.2% y PC3 el 33.0% de la varianza.
-La distribución uniforme indica que ninguna componente captura
-una proporción dominante, lo cual es coherente con las bajas
-correlaciones entre variables.
+# ---------- VISUALIZACIÓN 3 ----------
+st.subheader("3. Tiempo de visualización por plan")
+fig3 = px.box(df, x='subscription_plan', y='monthly_watch_time_mins',
+              color='subscription_plan',
+              category_orders={'subscription_plan': orden_plan},
+              labels={'subscription_plan': 'Plan de suscripción',
+                      'monthly_watch_time_mins': 'Minutos por mes'})
+fig3.update_layout(title='Tiempo de visualización mensual por plan de suscripción')
+st.plotly_chart(fig3, use_container_width=True)
+st.markdown("""
+**Interpretación:** Los tres planes muestran distribuciones similares de tiempo de visualización,
+sin diferencias marcadas entre ellos. Esto sugiere que el plan contratado
+no determina cuánto consume el usuario mensualmente.
 """)
 
-# --- VISUALIZACIÓN 2 ---
-st.markdown("### Proyección de usuarios en PC1 y PC2")
-
-X_pca = pca.transform(X_scaled)
-
-fig2, ax2 = plt.subplots(figsize=(10, 6))
-scatter = ax2.scatter(X_pca[:, 0], X_pca[:, 1],
-                      c=df['monthly_watch_time_mins'],
-                      cmap='coolwarm', alpha=0.4, s=10)
-plt.colorbar(scatter, label='Tiempo de visualización (min)')
-ax2.set_xlabel('Componente Principal 1')
-ax2.set_ylabel('Componente Principal 2')
-ax2.set_title('Proyección de usuarios en PC1 y PC2')
-st.pyplot(fig2)
-
-st.write("""
-La proyección muestra que los usuarios no forman grupos claramente
-diferenciados en el espacio de las dos primeras componentes.
-Esto es consistente con la distribución uniforme de varianza y
-con la ausencia de correlaciones fuertes entre las variables originales.
+# ---------- VISUALIZACIÓN 4 ----------
+st.subheader("4. Tickets de soporte por país")
+tickets_pais = df.groupby('country')['customer_support_tickets'].mean().sort_values(ascending=False)
+fig4 = px.bar(x=tickets_pais.index, y=tickets_pais.values,
+              color_discrete_sequence=['mediumpurple'],
+              labels={'x': 'País', 'y': 'Promedio de tickets'})
+fig4.update_traces(marker_line_color='white', marker_line_width=1)
+fig4.update_layout(title='Promedio de tickets de soporte por país',
+                   xaxis_tickangle=-45)
+st.plotly_chart(fig4, use_container_width=True)
+st.markdown("""
+**Interpretación:** El promedio de tickets varía entre países, lo que podría indicar diferencias
+en la experiencia del usuario según la región. Los países con mayor promedio
+podrían estar experimentando problemas técnicos más frecuentes.
 """)
 
-# --- LOADINGS ---
-st.markdown("### Interpretación de las componentes")
-
-loadings = pd.DataFrame(
-    pca.components_.T,
-    index=variables,
-    columns=['PC1', 'PC2', 'PC3']
-).round(3)
-
-st.dataframe(loadings)
-
-st.write("""
-PC1 combina las tres variables con pesos similares, representando
-un perfil general del usuario. PC2 opone edad contra tiempo de
-visualización, capturando la diferencia entre usuarios mayores
-con menor consumo y jóvenes con mayor consumo. PC3 representa
-el nivel de incidencias técnicas de forma aislada.
+# ---------- VISUALIZACIÓN 5 ----------
+st.subheader("5. Mapa de correlaciones")
+variables_numericas = df[['age', 'monthly_watch_time_mins', 'customer_support_tickets']]
+corr = variables_numericas.corr()
+fig5 = px.imshow(corr, text_auto='.2f', color_continuous_scale='RdBu_r',
+                 zmin=-1, zmax=1,
+                 labels={'color': 'Correlación'})
+fig5.update_layout(title='Mapa de calor de correlaciones entre variables numéricas')
+st.plotly_chart(fig5, use_container_width=True)
+st.markdown("""
+**Interpretación:** Las variables numéricas no presentan correlaciones fuertes entre sí,
+lo que indica que cada una aporta información independiente. La correlación
+cercana a cero entre tickets y tiempo de visualización sugiere que los
+usuarios continúan consumiendo contenido a pesar de reportar incidencias.
 """)
