@@ -5,7 +5,7 @@ st.title("Análisis de Usuarios de Plataforma de Streaming")
 st.markdown("---")
 
 st.markdown("### Información del proyecto")
-st.markdown("**Integrantes:** Sara")
+st.markdown("**Integrantes:** Lombardi Sara Pazzelli Enzo")
 st.markdown("**Comisión:**Turno tarde Capital")
 st.markdown("**Fecha:**26 de junio 2026")
 
