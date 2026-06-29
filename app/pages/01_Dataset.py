@@ -48,4 +48,4 @@ st.markdown("""
 5. Imputación de nulos con la mediana y la moda según la variable
 6. Conversión e imputación de last_login_date
 7. Retención final: 7.884 registros (96.6% del total original)
-""")
+"""
